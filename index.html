@@ -32,11 +32,11 @@ a{color:inherit}
 /* Steering-wheel cursor (enabled by JS only for fine-pointer, hover-capable, wider-than-768px screens) */
 .sw-cursor,.sw-trail{position:fixed;top:0;left:0;pointer-events:none;display:none}
 .sw-trail{z-index:9998}
-.sw-cursor{width:52px;height:52px;z-index:9999;opacity:0;transition:opacity .18s ease;will-change:transform}
+.sw-cursor{width:34px;height:34px;z-index:9999;opacity:0;transition:opacity .18s ease;will-change:transform}
 .sw-cursor.sw-vis{opacity:1}
 .sw-cursor.sw-hide{opacity:0;transition-duration:.05s}
 .sw-trail.sw-hide{visibility:hidden}
-.sw-wheel{display:block;width:52px;height:52px;overflow:visible;transform-origin:50% 50%;will-change:transform}
+.sw-wheel{display:block;width:34px;height:34px;overflow:visible;transform-origin:50% 50%;will-change:transform}
 html.sw-on .sw-cursor,html.sw-on .sw-trail{display:block}
 html.sw-on,html.sw-on *{cursor:none!important}
 /* protected areas (wheel hidden): restore the normal system pointer */
@@ -447,7 +447,7 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
 
 <canvas class="sw-trail" id="swTrail" aria-hidden="true"></canvas>
 <div class="sw-cursor" id="swCursor" aria-hidden="true">
-  <svg class="sw-wheel" id="swWheel" viewBox="0 0 52 52" width="52" height="52" xmlns="http://www.w3.org/2000/svg" focusable="false">
+  <svg class="sw-wheel" id="swWheel" viewBox="0 0 52 52" width="34" height="34" xmlns="http://www.w3.org/2000/svg" focusable="false">
     <defs>
       <linearGradient id="swRim" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#32353c"/><stop offset=".45" stop-color="#0d0e11"/><stop offset="1" stop-color="#1c1e23"/>
@@ -1277,7 +1277,7 @@ if(evBat && evPanel){
   var mqFine = matchMedia('(hover:hover) and (pointer:fine) and (min-width:769px)');
   var mqRM = matchMedia('(prefers-reduced-motion: reduce)');
 
-  var HALF = 26;                 /* half of the 52px cursor box: puts the pointer at the wheel centre */
+  var HALF = 17;                 /* half of the 34px cursor box: puts the pointer at the wheel centre */
   var MAX_DEG = 35;              /* steering lock */
   var GAIN = 2.4;                /* degrees per px/frame of horizontal speed */
   var K = 0.14, C = 0.34;        /* spring stiffness / damping (per 60fps frame) */
