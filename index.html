@@ -120,7 +120,7 @@ h2{font-family:var(--font-d);font-weight:700;font-size:clamp(2.1rem,4.4vw,3.4rem
 .skillrow:last-child{border-bottom:1px solid var(--line)}
 .skillrow h3{font-family:var(--font-d);font-size:1.7rem;font-weight:600;margin:0}
 .skillrow .num{font-family:var(--font-m);color:var(--mu);font-size:.78rem}
-.chiprow{display:flex;flex-wrap:wrap;gap:.5rem}
+.chiprow{display:flex;flex-wrap:wrap;gap:.5rem;align-content:flex-start;align-items:flex-start}   /* chips keep their own height instead of stretching to the row */
 .chiprow span{border:1px solid var(--line);border-radius:99px;padding:.4rem 1rem;font-size:.85rem;color:var(--mu)}
 @media(max-width:700px){.skillrow{grid-template-columns:1fr;gap:.8rem}}
 
@@ -336,6 +336,19 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
   html.ty-js .ty-r,html.ty-js .ty-wheel.ty-r{opacity:1;transform:none}
   html.ty-js .thankyou.in .ty-r{transition:none}
 }
+
+/* one-time hint for phones/tablets: the full road journey is a large-screen experience */
+.dk-hint{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:95;max-width:420px;margin:0 auto;
+  display:none;align-items:flex-start;gap:.9rem;padding:.95rem 1rem;background:rgba(21,24,29,.96);border:1px solid var(--line,#2a2f36);border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease}
+.dk-hint.show{display:flex}
+.dk-hint.in{opacity:1;transform:none}
+.dk-hint .dk-ic{flex:0 0 auto;width:34px;height:34px;color:#F2A900;margin-top:2px}
+.dk-hint .dk-tx{flex:1;min-width:0}
+.dk-hint .dk-tx b{display:block;font:700 .68rem 'Space Mono',ui-monospace,monospace;letter-spacing:.14em;color:#F2A900;margin-bottom:.3rem}
+.dk-hint .dk-tx span{display:block;font:400 .86rem/1.45 Inter,system-ui,sans-serif;color:#C4CAD3}
+.dk-hint button{flex:0 0 auto;align-self:center;background:#F2A900;color:#0a0c10;border:0;border-radius:8px;padding:.55rem .85rem;font:600 .8rem Inter,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media(prefers-reduced-motion:reduce){.dk-hint{transition:none;transform:none}}
 </style>
 </head>
 <body>
@@ -2040,6 +2053,32 @@ if(evBat && evPanel){
     if(performance.now()<until) raf=requestAnimationFrame(frame); else last=0;
   }
   window.addEventListener('scroll',function(){ until=performance.now()+800; if(!raf) raf=requestAnimationFrame(frame); },{passive:true});
+})();
+</script>
+<div class="dk-hint" id="dkHint" role="status" aria-live="polite">
+  <svg class="dk-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>
+  <div class="dk-tx"><b>BEST ON DESKTOP</b><span>The full road journey plays on larger screens. Open this on a laptop or desktop for the complete experience.</span></div>
+  <button type="button" id="dkHintOk" aria-label="Dismiss this tip">Got it</button>
+</div>
+<script>
+(function(){
+  var box=document.getElementById('dkHint'), ok=document.getElementById('dkHintOk'); if(!box||!ok) return;
+  /* phones, tablets and narrow windows: the journey needs a 1200px+ screen */
+  if(!window.matchMedia('(max-width:1199px)').matches) return;
+  var timer=0;                                         /* shown on every load / refresh */
+  var y0=0;
+  function onScroll(){ if(Math.abs((window.scrollY||0)-y0)>30) hide(); }      /* scrolling away dismisses it */
+  function hide(){
+    clearTimeout(timer); window.removeEventListener('scroll',onScroll); box.classList.remove('in');
+    setTimeout(function(){ box.classList.remove('show'); },400);
+  }
+  ok.addEventListener('click',hide);
+  setTimeout(function(){
+    box.classList.add('show'); y0=window.scrollY||0;
+    window.addEventListener('scroll',onScroll,{passive:true});
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ box.classList.add('in'); }); });
+    timer=setTimeout(hide,14000);                      /* leaves on its own if ignored */
+  },3000);
 })();
 </script>
 </body>
