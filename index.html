@@ -21,7 +21,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:10
 /* offscreen decorative animations are paused by a tiny IntersectionObserver (see script) */
 .anim-paused,.anim-paused *{animation-play-state:paused!important}
 /* adaptive 'lite' mode: switched on automatically if scrolling keeps stalling on a weak device */
-html.lite .jwave,html.lite .jflag,html.lite .jsf,html.lite .ongoing-stage *{animation:none!important}
+html.lite .jwave,html.lite .jflag,html.lite .jsf,html.lite .ongoing-stage *,html.lite #jenv{animation:none!important}
 html.lite #jSnowFly{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-b);overflow-x:hidden;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -291,7 +291,11 @@ html.journey-on .hero-foot{position:relative;z-index:3}
   mask-composite:intersect}
 #jscene svg{display:block;width:100%;height:100%}
 #jroad{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none;overflow:hidden}
-#jcarlayer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:40;pointer-events:none;overflow:hidden}
+#jcarlayer{position:fixed;top:0;left:0;width:1px;height:1px;z-index:40;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform}   /* the car is moved by the compositor (transform), never repainted per frame */
+#jenv{display:none;position:absolute;left:0;width:100%;z-index:1;pointer-events:none;overflow:hidden;will-change:transform,opacity;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#jenv.on{display:block;animation:jenvbreathe 7s ease-in-out infinite}
+@keyframes jenvbreathe{0%,100%{opacity:.8}50%{opacity:1}}
+#jfx{position:absolute;top:0;left:0;width:100%;z-index:3;pointer-events:none;overflow:hidden;will-change:transform}
 html.journey-coast .journey{display:block}
 html.journey-coast #jscene,html.journey-coast #jcarlayer{display:none}
 #jSnowFly{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:39;pointer-events:none}
@@ -300,7 +304,7 @@ html.journey-on #jSnowFly{display:block}
 .jflag{transform-box:fill-box;transform-origin:0% 50%;animation:jflagwave 3.4s ease-in-out infinite}
 @keyframes jflagwave{0%,100%{transform:skewY(0deg) scaleX(1)}50%{transform:skewY(-5deg) scaleX(.96)}}
 @media(prefers-reduced-motion:reduce){.jflag{animation:none}}
-.jwave{animation:jwdrift 10s steps(70) infinite}   /* foam drift only, stepped: the sway/pulse animations repainted the whole shoreline every frame */
+.jwave{animation:jwdrift 10s linear infinite}   /* continuous foam drift; the sea lives in its own layer so it never repaints the road */
 @keyframes jwdrift{to{stroke-dashoffset:-140}}
 @keyframes jwsurge{0%,100%{transform:translateX(7px)}50%{transform:translateX(-5px)}}
 @keyframes jwbreathe{0%,100%{opacity:.6}50%{opacity:1}}
@@ -369,6 +373,7 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
     <path d="M360 830 L560 690 L820 640 L1100 610 L1440 560 L1440 830Z" fill="#090b0e"/>
   </svg></div>
 
+  <svg id="jenv" xmlns="http://www.w3.org/2000/svg"><g id="jEnv"></g></svg>
   <svg id="jroad" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <filter id="jEdgeGlow" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="2.4"/></filter>
@@ -390,7 +395,6 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
       </linearGradient>
       <mask id="jtMask" maskUnits="userSpaceOnUse" x="0" y="0" width="4000" height="20000"><rect id="jtRect" x="0" y="0" width="4000" height="20000" fill="url(#jtG)"/></mask>
     </defs>
-    <g id="jEnv" mask="url(#jeMask)"></g>
     <g id="jFill" fill="#0a0c10" stroke="none"></g>
     <g id="jExit"></g>
     <g id="jTunnel" mask="url(#jtMask)"></g>
@@ -402,12 +406,12 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
     <g id="jCenter" fill="none" stroke="#F2A900" stroke-opacity=".42" stroke-width="2" stroke-dasharray="16 20"></g>
     <g id="jTrail" fill="none" stroke="#3FBFA0" stroke-opacity=".75" stroke-width="1.6"></g>
     <g id="jPortal"></g>
-    <g id="jSnowF" opacity="0"></g>
     <g id="jCharger"></g>
     <g id="jDest"></g>
     <g id="jWps"></g>
     <g id="jcarStatic"></g>
   </svg>
+  <svg id="jfx" xmlns="http://www.w3.org/2000/svg"><g id="jSnowF" opacity="0"></g></svg>
 
   <canvas id="jSnowFly" aria-hidden="true"></canvas>
   <svg id="jcarlayer" xmlns="http://www.w3.org/2000/svg">
@@ -1451,7 +1455,7 @@ if(evBat && evPanel){
   var io=new IntersectionObserver(function(es){
     for(var i=0;i<es.length;i++) es[i].target.classList.toggle('anim-paused',!es[i].isIntersecting);
   },{rootMargin:'160px 0px'});
-  var SEL='.road,.ongoing-stage,.tacho-viz,.jwave,.jflag,#jSnowF';
+  var SEL='.road,.ongoing-stage,.tacho-viz,.jwave,.jflag,#jSnowF,#jenv';
   window.__watchAnim=function(scope){
     var list=(scope||document).querySelectorAll(SEL);
     for(var i=0;i<list.length;i++){ if(!list[i].__aw){ list[i].__aw=1; io.observe(list[i]); } }
@@ -1471,7 +1475,7 @@ if(evBat && evPanel){
   var scene=document.getElementById('jscene'), road=document.getElementById('jroad');
   var carLayer=document.getElementById('jcarlayer'), car=document.getElementById('jcar');
   var $=function(id){return document.getElementById(id)};
-  var st={on:false,geo:null,cy:0,ang:90,steer:0,raf:0,rt:0,wps:[],ro:null,static:false,carHome:car.parentNode,sig:'',tIdx:-1,steerEls:null};
+  var st={on:false,geo:null,cy:0,ang:90,steer:0,raf:0,rt:0,wps:[],ro:null,static:false,carHome:car.parentNode,sig:'',tIdx:-1,steerEls:null,carRS:1,lastSteer:999};
   var jTrailEl=document.getElementById('jTrail');
   function watchAnim(){ if(window.__watchAnim) window.__watchAnim(layer); }
   function sizeSig(){ var a=document.getElementById('work'), c=document.getElementById('contact'); return root.clientWidth+'x'+root.scrollHeight+'x'+(a?a.offsetTop:0)+'x'+(c?c.offsetTop:0); }
@@ -1532,7 +1536,7 @@ if(evBat && evPanel){
     var g=st.geo=geometry();
     scene.style.height=g.heroBot+'px';
     road.setAttribute('width',g.V); road.setAttribute('height',g.H);
-    road.setAttribute('viewBox','0 0 '+g.V+' '+g.H); road.style.height=g.H+'px';
+    road.setAttribute('viewBox','0 0 '+g.V+' '+g.H); road.style.height=g.H+'px'; syncFx();
     var step=6, L=[],R=[],C=[],lens=[0];
     for(var y=g.yS;y<=g.yEnd;y+=step){
       var x=xAt(g,y), m=(xAt(g,y+1)-xAt(g,y-1))/2, n=Math.sqrt(1+m*m), w=wAt(g,y)/2;
@@ -1646,17 +1650,21 @@ if(evBat && evPanel){
      and is drawn beneath the road so it can never cover the road or the car. Only 'coast' exists so far. */
   var SCENES=[{id:'coast',from:'process',to:'process',lead:-100,tail:40,fadeIn:260,fadeOut:300}];
   function buildEnv(g){
-    var E=$('jEnv'); E.innerHTML=''; if(!SCENES.length) return;
+    var E=$('jEnv'), EV=$('jenv'); E.innerHTML=''; EV.classList.remove('on'); EV.style.maskImage=EV.style.webkitMaskImage=''; if(!SCENES.length) return;
     var sc=SCENES[0], a=document.getElementById(sc.from), b=document.getElementById(sc.to); if(!a||!b) return;
     var sy=window.scrollY||0, ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
     var y0=ra.top+sy+sc.lead, y1=rb.bottom+sy+sc.tail, V=root.clientWidth;
     if(g){ y0=Math.max(y0,g.yS+120); y1=Math.min(y1,g.yE-60); }
     if(y1-y0<500) return;
-    var L=y1-y0; $('jeG').setAttribute('y1',y0); $('jeG').setAttribute('y2',y1);
-    $('jeS1').setAttribute('offset',Math.min(.45,sc.fadeIn/L)); $('jeS2').setAttribute('offset',1-Math.min(.45,sc.fadeOut/L));
+    var L=y1-y0;
+    /* the sea is a separate, cropped layer: only this stretch is a layer, and the fade in/out is a CSS mask (applied by the compositor) */
+    EV.style.top=y0+'px'; EV.style.height=L+'px'; EV.setAttribute('width',V); EV.setAttribute('height',L); EV.setAttribute('viewBox','0 '+y0+' '+V+' '+L);
+    var fi=Math.min(.45*L,sc.fadeIn), fo=Math.min(.45*L,sc.fadeOut);
+    var mg='linear-gradient(to bottom,transparent 0,#000 '+fi.toFixed(0)+'px,#000 '+(L-fo).toFixed(0)+'px,transparent '+L.toFixed(0)+'px)';
+    EV.style.webkitMaskImage=mg; EV.style.maskImage=mg; EV.classList.add('on');
     // shoreline: the road's outer (right) edge on desktop, a slim strip at the right screen edge on small screens
     var shore=[];
-    for(var y=y0;y<=y1;y+=6){
+    for(var y=y0;y<=y1;y+=9){                        /* 9px sampling: waves are >50px long, so this is still smooth but 1/3 fewer segments to animate */
       if(g){ var q=perp(g,y,wAt(g,y)/2); shore.push([q[2],q[3]]); }
       else shore.push([V-Math.max(14,V*0.05)+3*Math.sin(y/46),y]);
     }
@@ -1683,7 +1691,7 @@ if(evBat && evPanel){
       [0.58,7.5,14,4.0,'#6fb7cf',.24,1.3,'30 20',16],
       [0.80,8.0,16,5.2,'#3FBFA0',.18,1.2,'64 24',19]];
     layers.forEach(function(l,i){
-      var at={d:pathOf(l[0],l[1],l[2],l[3],i<2?4:2),fill:'none',stroke:l[4],'stroke-opacity':l[5],'stroke-width':l[6],'stroke-linecap':'round'};
+      var at={d:pathOf(l[0],l[1],l[2],l[3],i<2?4:2),fill:'none',stroke:l[4],'stroke-opacity':l[5],'stroke-width':l[6],'stroke-linecap':l[7]?'butt':'round'};
       if(l[7]){ at['stroke-dasharray']=l[7]; at['class']='jwave'; }
       var p=mk('path',at,E);
       if(l[7]){ p.style.animationDuration=l[8]+'s,'+(5.5+i*0.9)+'s,'+(5.5+i*0.9)+'s'; if(i%2) p.style.animationDirection='reverse,normal,normal'; p.style.animationDelay='0s,'+(-i*1.1)+'s,'+(-i*1.1)+'s'; }
@@ -1691,7 +1699,7 @@ if(evBat && evPanel){
   }
   function buildCoastOnly(){
     var V=root.clientWidth, H=Math.max(root.scrollHeight,innerHeight);
-    road.setAttribute('width',V); road.setAttribute('height',H); road.setAttribute('viewBox','0 0 '+V+' '+H); road.style.height=H+'px';
+    road.setAttribute('width',V); road.setAttribute('height',H); road.setAttribute('viewBox','0 0 '+V+' '+H); road.style.height=H+'px'; syncFx();
     buildEnv(null);
     buildSnow(null);
     watchAnim();
@@ -1836,7 +1844,6 @@ if(evBat && evPanel){
      road centre, so the band bends with the road as the page scrolls. */
   function flyFrame(ts){
     fly.raf=0; var c=fly.ctx, g=st.geo, sn=st.snow; if(!c) return;
-    if(ts-fly.last<30){ fly.raf=requestAnimationFrame(flyFrame); return; }          // ~30fps is plenty for drifting flakes and halves the canvas work
     var dt=Math.min(.05,(ts-fly.last)/1000||0); fly.last=ts;
     if(fly.env<.02||!g||!sn){ c.clearRect(0,0,fly.W,fly.H); fly.x0=-1; return; }    // faded out: stop until the car is back in the stretch
     var sy=window.scrollY||0, contentRight=g.G-(g.V-g.G);
@@ -1905,6 +1912,16 @@ if(evBat && evPanel){
     var g=st.geo, sy=window.scrollY||0, vh=innerHeight, p=Math.min(1,sy/Math.max(1,g.H-vh));
     return Math.min(g.yE, sy+vh*(0.58+0.2*sstep(0,1,p)));
   }
+  /* In the normal (animated) mode the car sits in its own fixed layer and is positioned with a CSS transform (compositor only).
+     The inner group is drawn at the largest size it ever needs, so the layer is only ever scaled down and stays sharp. */
+  function syncFx(){ var fx=$('jfx'); fx.setAttribute('viewBox',road.getAttribute('viewBox')); fx.style.height=road.style.height; }
+  function putCar(x,y,ang,s){
+    if(car.parentNode===st.carHome){
+      carLayer.style.transform='translate3d('+x.toFixed(2)+'px,'+y.toFixed(2)+'px,0) rotate('+ang.toFixed(2)+'deg) scale('+(s/st.carRS).toFixed(4)+')';
+    } else {
+      car.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+ang.toFixed(1)+') scale('+s.toFixed(3)+')');
+    }
+  }
   function place(snap){
     var g=st.geo, sy=window.scrollY||0, vh=innerHeight;
     var tg=target();
@@ -1915,10 +1932,10 @@ if(evBat && evPanel){
     var steer=Math.max(-24,Math.min(24,d*1.1)); st.steer = snap?0: st.steer+(steer-st.steer)*0.3;
     var s=wAt(g,y)*0.56/46;
     var cx=x, cyScr=y-sy;
-    car.setAttribute('transform','translate('+cx.toFixed(2)+','+cyScr.toFixed(2)+') rotate('+st.ang.toFixed(2)+') scale('+s.toFixed(3)+')');
-    var sw=st.steerEls||(st.steerEls=car.querySelectorAll('.jsteer')); var rot='rotate('+st.steer.toFixed(1)+')'; for(var i=0;i<sw.length;i++) sw[i].setAttribute('transform',rot);
+    putCar(cx,cyScr,st.ang,s);
+    if(Math.abs(st.steer-st.lastSteer)>0.35){ st.lastSteer=st.steer; var sw=st.steerEls||(st.steerEls=car.querySelectorAll('.jsteer')); var rot='rotate('+st.steer.toFixed(1)+')'; for(var i=0;i<sw.length;i++) sw[i].setAttribute('transform',rot); }
     if(st.tun){ var amt=tunAmt(y), near=1e9; for(var q=0;q<st.lights.length;q++){var dd=Math.abs(y-st.lights[q]); if(dd<near) near=dd;}
-      var lit=Math.exp(-Math.pow(near/30,2)); car.style.opacity=(1-amt*0.24*(1-lit)).toFixed(3); } else car.style.opacity='';
+      var lit=Math.exp(-Math.pow(near/30,2)); carLayer.style.opacity=(1-amt*0.24*(1-lit)).toFixed(3); } else if(carLayer.style.opacity) carLayer.style.opacity='';
     if(st.chg){ var cd=(y-st.chg.y)/60, ck=Math.exp(-cd*cd);
       sa(st.chg.img,'opacity',0.82+0.18*ck); sa(st.chg.glow,'opacity',0.9*ck); }
     snowLight(y);
@@ -1933,11 +1950,11 @@ if(evBat && evPanel){
   function onScroll(){ if(mqR.matches) return; if(!st.raf) st.raf=requestAnimationFrame(tick); }
 
   function placeStatic(){
-    car.style.opacity='';
+    carLayer.style.opacity='';
     // reduced motion: car rests at its hero position on the road, no scroll coupling
     var g=st.geo, y=0.58*innerHeight, x=xAt(g,y), m=(xAt(g,y+2)-xAt(g,y-2))/4;
     var ang=Math.atan2(1,m)*180/Math.PI, s=wAt(g,y)*0.56/46;
-    car.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+ang.toFixed(1)+') scale('+s.toFixed(3)+')');
+    putCar(x,y,ang,s);
     setTrail(0);
     snowLight(null);
   }
@@ -1950,6 +1967,8 @@ if(evBat && evPanel){
       placeStatic();
     } else {
       if(car.parentNode!==st.carHome) st.carHome.appendChild(car);
+      var mxS=1, gg=st.geo; if(gg){ for(var yy=gg.yS; yy<=gg.yE; yy+=30){ var vv=wAt(gg,yy)*0.56/46; if(vv>mxS) mxS=vv; } }
+      st.carRS=mxS; car.setAttribute('transform','scale('+mxS.toFixed(3)+')'); st.lastSteer=999;
       place(true);
     }
   }
@@ -1979,7 +1998,7 @@ if(evBat && evPanel){
   function disableCoast(){
     if(!coast.on) return; coast.on=false; root.classList.remove('journey-coast'); clearTimeout(coast.rt);
     window.removeEventListener('resize',coastSched); window.removeEventListener('load',coastSched);
-    if(coast.ro){coast.ro.disconnect();coast.ro=null;} $('jEnv').innerHTML=''; $('jSnow').innerHTML=''; $('jSnowF').innerHTML=''; st.snow=null;
+    if(coast.ro){coast.ro.disconnect();coast.ro=null;} $('jEnv').innerHTML=''; $('jenv').classList.remove('on'); $('jSnow').innerHTML=''; $('jSnowF').innerHTML=''; st.snow=null;
   }
   function sync(){ if(mqD.matches){ disableCoast(); enable(); } else { disable(); enableCoast(); } }
   (mqD.addEventListener?mqD.addEventListener('change',sync):mqD.addListener(sync));
@@ -2042,14 +2061,15 @@ if(evBat && evPanel){
   window.addEventListener('pageshow',function(e){ if(e.persisted && window.ScrollTrigger && ScrollTrigger.refresh) ScrollTrigger.refresh(); });
   document.addEventListener('visibilitychange',function(){ if(!document.hidden && window.gsap && gsap.ticker && gsap.ticker.wake) gsap.ticker.wake(); });
   /* adaptive quality: if scrolling keeps dropping below ~20fps, switch off the heaviest decorative animations */
-  try{ if(sessionStorage.getItem('lite')==='1'){ root.classList.add('lite'); return; } }catch(err){}
+  try{ sessionStorage.removeItem('lite'); }catch(err){}                 /* never remembered between visits */
+  if(!window.matchMedia('(hover:none) and (pointer:coarse)').matches) return;   /* desktops/laptops always keep every animation */
   var raf=0,last=0,until=0,slow=0,winStart=0;
   function frame(t){
     raf=0;
-    if(last){ var dt=t-last; if(dt>50 && dt<1000) slow++; }
+    if(last){ var dt=t-last; if(dt>60 && dt<1000) slow++; }
     last=t; if(!winStart) winStart=t;
     if(t-winStart>4000){ slow=0; winStart=t; }
-    if(slow>=8){ root.classList.add('lite'); try{ sessionStorage.setItem('lite','1'); }catch(err){} return; }
+    if(slow>=10){ root.classList.add('lite'); return; }
     if(performance.now()<until) raf=requestAnimationFrame(frame); else last=0;
   }
   window.addEventListener('scroll',function(){ until=performance.now()+800; if(!raf) raf=requestAnimationFrame(frame); },{passive:true});
