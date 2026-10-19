@@ -54,6 +54,23 @@ nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;width:100%;z-index:50
 .status i{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 nav .links{display:flex;gap:2rem}
+/* desktop: make the availability badge impossible to miss (steady dot + text, no box; links to Contact) */
+@media(min-width:901px) and (max-width:1180px){
+  nav{padding-left:4vw;padding-right:4vw}
+  nav .links{gap:1.1rem}
+  .status{font-size:.68rem!important;letter-spacing:.1em!important;padding:.4rem 0!important;gap:.5rem!important}
+}
+@media(min-width:901px){
+  .status{position:relative;flex:none;box-sizing:border-box;line-height:1;padding:.4rem 0;gap:.65rem;border:0;border-radius:0;
+    background:none;color:var(--ink);font-size:.76rem;font-weight:600;letter-spacing:.16em;text-decoration:none;white-space:nowrap;transition:background .2s,border-color .2s}
+  .status i{flex:none;width:7px;height:7px;background:var(--teal);box-shadow:0 0 8px 1px rgba(63,191,160,.6)}
+  nav .brand{flex:none;white-space:nowrap}
+  nav .links{flex:none;white-space:nowrap}
+  .status::after{content:"";position:absolute;left:1.35rem;right:0;bottom:.05rem;height:1px;background:var(--teal);transform:scaleX(0);transform-origin:0 50%;transition:transform .3s ease}
+  .status:hover::after,.status:focus-visible::after{transform:scaleX(1)}
+  .status:focus-visible{outline:none}
+}
+
 nav .links a{font-size:.85rem;text-decoration:none;color:var(--ink)}
 @media(max-width:760px){nav .links{display:none}}
 
@@ -62,6 +79,8 @@ nav .links a{font-size:.85rem;text-decoration:none;color:var(--ink)}
   background-size:28px 28px;background-position:-14px -14px}
 .hero .tag{font-family:var(--font-m);font-size:.75rem;color:var(--amber);letter-spacing:.04em;margin-bottom:1rem}
 .namewrap{position:relative;line-height:.86}
+/* the big outlined hero name is parallaxed on scroll: give it its own layer so the text is never re-rasterised per frame */
+#nm1,#nm2{will-change:transform;backface-visibility:hidden}
 .name{font-family:var(--font-d);font-weight:900;font-size:clamp(2.6rem,10vw,9rem);text-transform:uppercase;
   display:flex;flex-wrap:wrap;gap:0 .3em}
 .name .fill{color:var(--ink)}
@@ -97,9 +116,9 @@ h2{font-family:var(--font-d);font-weight:700;font-size:clamp(2.1rem,4.4vw,3.4rem
 
 .road{position:relative;height:64px;background:#1B1E24;border-radius:6px;overflow:hidden;margin-bottom:2.2rem;
   border-top:2px solid #2B2F37;border-bottom:2px solid #2B2F37}
-.road .lane{position:absolute;top:50%;left:0;right:0;height:4px;transform:translateY(-50%);
-  background-image:repeating-linear-gradient(90deg,var(--amber) 0 28px,transparent 28px 56px);background-size:200% 100%;
-  animation:drive 1.8s linear infinite}
+.road .lane{position:absolute;top:50%;left:0;width:calc(100% + 112px);height:4px;transform:translate3d(0,-50%,0);will-change:transform;
+  background-image:repeating-linear-gradient(90deg,var(--amber) 0 28px,transparent 28px 56px);
+  animation:drive 1.8s linear infinite}   /* moved with transform (compositor) instead of animating background-position (repaint every frame) */
 .road .car{position:absolute;top:50%;left:0;width:26px;height:14px;transform:translate3d(0,calc(-50% - 9px),0) scale(1.5);transform-origin:50% 100%;pointer-events:none;will-change:transform}
 .road .car .cbody{position:absolute;left:0;bottom:0;width:26px;height:7px;background:#fff;border-radius:2px 2px 1px 1px}
 .road .car .ccabin{position:absolute;left:6px;bottom:5px;width:13px;height:6px;background:#fff;border-radius:5px 5px 0 0}
@@ -108,7 +127,7 @@ h2{font-family:var(--font-d);font-weight:700;font-size:clamp(2.1rem,4.4vw,3.4rem
 .road .car .cwheel.l{left:3px}
 .road .car .cwheel.r{left:17px}
 .road .marker{position:absolute;top:0;bottom:0;width:1px;background:#2B2F37}
-@keyframes drive{from{background-position-x:0}to{background-position-x:-112px}}
+@keyframes drive{from{transform:translate3d(0,-50%,0)}to{transform:translate3d(-112px,-50%,0)}}
 @media(prefers-reduced-motion:reduce){.road .lane{animation:none}}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
 .stat{background:var(--bg);padding:2.2rem 1.4rem}
@@ -144,7 +163,7 @@ h2{font-family:var(--font-d);font-weight:700;font-size:clamp(2.1rem,4.4vw,3.4rem
 .panel .card.prog .prog-info p{max-width:46ch;margin:0 0 1rem}
 .prog-tags{font-family:var(--font-m);font-size:.72rem;letter-spacing:.12em;color:var(--mu)}
 .soc{justify-self:center;text-align:center;padding-top:1.3rem}
-.soc-bat{--s:.86;position:relative;width:250px;height:108px;border:3px solid var(--teal);border-radius:12px;margin:0 auto}
+.soc-bat{contain:layout;--s:.86;position:relative;width:250px;height:108px;border:3px solid var(--teal);border-radius:12px;margin:0 auto}
 .soc-bat:after{content:'';position:absolute;right:-12px;top:50%;width:8px;height:38px;transform:translateY(-50%);background:var(--teal);border-radius:0 4px 4px 0}
 .soc-cell{position:absolute;left:6px;top:6px;bottom:6px;width:calc((100% - 12px) * var(--s));background:var(--teal);border-radius:7px}
 .soc-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:2.6rem;line-height:1;letter-spacing:.02em;color:var(--ink)}
@@ -290,8 +309,9 @@ html.journey-on .hero-foot{position:relative;z-index:3}
   mask-image:linear-gradient(90deg,transparent 22%,#000 62%),linear-gradient(180deg,#000 72%,transparent 100%);
   mask-composite:intersect}
 #jscene svg{display:block;width:100%;height:100%}
-#jroad{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none;overflow:hidden}
-#jcarlayer{position:fixed;top:0;left:0;width:1px;height:1px;z-index:40;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform}   /* the car is moved by the compositor (transform), never repainted per frame */
+#jroad{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none;overflow:hidden;contain:layout paint}   /* static after build: never repainted while scrolling */
+#jtop{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none;overflow:hidden;contain:layout paint}   /* the parts that DO change with the car (trail, waypoints, charger, finish) live on their own layer, so the road itself is never repainted */
+#jcarlayer{position:absolute;top:0;left:0;width:1px;height:1px;z-index:40;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform}   /* page coordinates, same space as the road: the browser scrolls car and road together, so the car can never slide sideways off the road; only its position ALONG the road is updated from script */
 #jenv{display:none;position:absolute;left:0;width:100%;z-index:1;pointer-events:none;overflow:hidden;will-change:transform,opacity;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 #jenv.on{display:block;animation:jenvbreathe 7s ease-in-out infinite}
 @keyframes jenvbreathe{0%,100%{opacity:.8}50%{opacity:1}}
@@ -314,10 +334,31 @@ html.journey-on #jSnowFly{display:block}
 @keyframes jsfall{0%{transform:translate(0,-26px);opacity:0}14%{opacity:1}86%{opacity:1}100%{transform:translate(var(--dx,6px),44px);opacity:0}}
 #jSnowF.jsnow-off .jsf{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){#jSnowF{display:none}}
-#jroad .wp rect{fill:#0c0f13;stroke:#2a313a;stroke-width:1;transition:stroke .4s ease,fill .4s ease}
-#jroad .wp text{font-family:'Space Mono',monospace;font-size:9px;fill:#5b6471;text-anchor:middle;transition:fill .4s ease}
-#jroad .wp.on rect{stroke:#3FBFA0;fill:#0e1a18}
-#jroad .wp.on text{fill:#3FBFA0}
+#jtop .wp rect{fill:#0c0f13;stroke:#2a313a;stroke-width:1;transition:stroke .4s ease,fill .4s ease}
+#jtop .wp text{font-family:'Space Mono',monospace;font-size:9px;fill:#5b6471;text-anchor:middle;transition:fill .4s ease}
+#jtop .wp.on rect{stroke:#3FBFA0;fill:#0e1a18}
+#jtop .wp.on text{fill:#3FBFA0}
+
+/* ===== Speed readout + P N R D selector (desktop): appears while the page is moving, fades away after you stop ===== */
+.hud{display:none;position:fixed;left:calc(env(safe-area-inset-left,0px) + clamp(40px,calc(((100vw - min(1120px,100vw))/2 + 6vw)*.3),130px));   /* sits a third of the way into the left margin: never on the edge, never near the content */
+  bottom:calc(env(safe-area-inset-bottom,0px) + 34px);z-index:60;pointer-events:none;user-select:none;-webkit-user-select:none;
+  flex-direction:column;align-items:flex-start;gap:.38rem;padding-bottom:.5rem;color:#fff;opacity:0;transition:opacity .9s ease .6s}
+.hud.live{opacity:.85;transition:opacity .25s ease}
+.hud::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,rgba(63,191,160,.9),rgba(63,191,160,0))}
+.hud-modes{display:flex;gap:.65rem;font-family:var(--font-m);font-size:.54rem;font-weight:700;line-height:1}
+.hud-modes i{font-style:normal;color:var(--mu);opacity:.5;transition:color .25s,opacity .25s}
+.hud-modes i.on{opacity:1;color:#fff;text-shadow:0 0 .7em rgba(255,255,255,.5)}
+.hud-modes i.on[data-g="D"]{color:#7be3c4;text-shadow:0 0 .7em rgba(63,191,160,.7)}
+.hud-modes i.on[data-g="R"]{color:var(--amber);text-shadow:0 0 .7em rgba(242,169,0,.6)}
+.hud-main{display:flex;align-items:baseline;gap:.45rem}
+.hud b{font-family:var(--font-d);font-weight:500;font-size:1.85rem;line-height:.9;letter-spacing:.01em;font-variant-numeric:tabular-nums;min-width:2.4ch;text-align:right;text-shadow:0 0 .6em rgba(63,191,160,.3)}
+.hud-main span{font-family:var(--font-m);font-size:.52rem;letter-spacing:.2em;color:var(--mu)}
+@media(min-width:1200px){html.journey-on .hud{display:flex}}
+@media(prefers-reduced-motion:reduce){.hud,html.journey-on .hud{display:none!important}}
+
+/* while the page is actually being scrolled, main-thread decorative loops rest (they resume ~160ms after scrolling stops) */
+html.is-scrolling .jwave,html.is-scrolling .jflag,html.is-scrolling .jsf,
+html.is-scrolling .ongoing-stage .hl-glow,html.is-scrolling .ongoing-stage.hazard-on .turn-sweep-path{animation-play-state:paused}
 
 /* ===== Final "Thank you" card ===== */
 .thankyou{position:relative;border-top:1px solid var(--line);text-align:center;overflow:hidden;
@@ -404,6 +445,8 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
     <g id="jEdgeL2" fill="none" stroke="#FFB04D" stroke-opacity=".6" stroke-width="1.2"></g>
     <g id="jEdgeR2" fill="none" stroke="#FFB04D" stroke-opacity=".6" stroke-width="1.2"></g>
     <g id="jCenter" fill="none" stroke="#F2A900" stroke-opacity=".42" stroke-width="2" stroke-dasharray="16 20"></g>
+  </svg>
+  <svg id="jtop" xmlns="http://www.w3.org/2000/svg">
     <g id="jTrail" fill="none" stroke="#3FBFA0" stroke-opacity=".75" stroke-width="1.6"></g>
     <g id="jPortal"></g>
     <g id="jCharger"></g>
@@ -413,19 +456,20 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
   </svg>
   <svg id="jfx" xmlns="http://www.w3.org/2000/svg"><g id="jSnowF" opacity="0"></g></svg>
 
-  <canvas id="jSnowFly" aria-hidden="true"></canvas>
+  <canvas id="jSnowFly" aria-hidden="true" style="display:none"></canvas>
   <svg id="jcarlayer" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="jBody" x1="0" y1="-18" x2="0" y2="18" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#434c58"/><stop offset=".4" stop-color="#181c22"/><stop offset="1" stop-color="#2d343e"/></linearGradient>
       <linearGradient id="jGlass" x1="0" y1="-13" x2="0" y2="13" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2a3d4b"/><stop offset=".5" stop-color="#0b1219"/><stop offset="1" stop-color="#1a2a36"/></linearGradient>
       <linearGradient id="jBeam" x1="48" y1="0" x2="190" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d6ecff" stop-opacity=".08"/><stop offset="1" stop-color="#d6ecff" stop-opacity="0"/></linearGradient>
       <radialGradient id="jTailGlow"><stop offset="0" stop-color="#ff3b30" stop-opacity=".3"/><stop offset="1" stop-color="#ff3b30" stop-opacity="0"/></radialGradient>
+      <radialGradient id="jShadowG"><stop offset=".86" stop-color="#000"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
       <filter id="jSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>
       <filter id="jLamp" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.2"/></filter>
     </defs>
     <g id="jcar">
         <path d="M48 -9 L190 -52 L190 52 L48 9Z" fill="url(#jBeam)"/>
-        <ellipse cx="-2" cy="3" rx="56" ry="23" fill="#000" opacity=".55" filter="url(#jSoft)"/>
+        <ellipse cx="-2" cy="3" rx="56" ry="23" fill="url(#jShadowG)" opacity=".55"/>
         <ellipse cx="-56" cy="0" rx="20" ry="16" fill="url(#jTailGlow)"/>
         <g transform="translate(-30,-20)"><rect x="-8.5" y="-3.4" width="17" height="6.8" rx="2.2" fill="#06080b" stroke="#222831" stroke-width=".5"/></g>
         <g transform="translate(-30,20)"><rect x="-8.5" y="-3.4" width="17" height="6.8" rx="2.2" fill="#06080b" stroke="#222831" stroke-width=".5"/></g>
@@ -440,9 +484,9 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
         <path d="M-31 -14.4 L9 -14.2 M-31 14.4 L9 14.2" stroke="#c4d8e6" stroke-opacity=".5" stroke-width=".9"/>
         <path d="M27 -6 L46 -3 M27 6 L46 3" stroke="#d8e8f2" stroke-opacity=".16" stroke-width=".8"/>
         <ellipse cx="15" cy="-19.2" rx="2.8" ry="1.7" fill="#12161b"/><ellipse cx="15" cy="19.2" rx="2.8" ry="1.7" fill="#12161b"/>
-        <path d="M41 -14.6 L47.4 -9.2 L45.6 -8 L40 -12.6Z M41 14.6 L47.4 9.2 L45.6 8 L40 12.6Z" fill="#e4f3ff" filter="url(#jLamp)" opacity=".55"/>
+        <path d="M41 -14.6 L47.4 -9.2 L45.6 -8 L40 -12.6Z M41 14.6 L47.4 9.2 L45.6 8 L40 12.6Z" fill="#e4f3ff" fill-opacity=".4" stroke="#e4f3ff" stroke-opacity=".28" stroke-width="2.6" stroke-linejoin="round"/>
         <path d="M41 -14.6 L47.4 -9.2 L45.6 -8 L40 -12.6Z M41 14.6 L47.4 9.2 L45.6 8 L40 12.6Z" fill="#f4faff"/>
-        <rect x="-50.6" y="-13" width="2" height="26" rx="1" fill="#ff3b30" filter="url(#jLamp)" opacity=".6"/>
+        <rect x="-51.4" y="-13.8" width="3.6" height="27.6" rx="1.8" fill="#ff3b30" opacity=".34"/>
         <rect x="-50.4" y="-13" width="1.7" height="26" rx=".85" fill="#ff5a4f"/>
     </g>
   </svg>
@@ -499,9 +543,14 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
   </svg>
 </div>
 
+<div class="hud" id="hud" aria-hidden="true">
+  <div class="hud-modes"><i data-g="P">P</i><i data-g="N">N</i><i data-g="R">R</i><i data-g="D">D</i></div>
+  <div class="hud-main"><b id="spNum">0</b><span>km/h</span></div>
+</div>
+
 <nav>
   <div class="brand">A. VENKAT DINESH</div>
-  <div class="status"><i></i>OPEN TO OPPORTUNITIES</div>
+  <a class="status" href="#contact" aria-label="Open to opportunities, jump to contact"><i></i>OPEN TO OPPORTUNITIES</a>
   <div class="links"><a href="#work">Programs</a><a href="#skills">Skills</a><a href="#resume">Resume</a><a href="#contact">Contact</a></div>
 </nav>
 
@@ -833,8 +882,8 @@ if(!reduce){
   gsap.from('#nm1 .fill',{y:'100%',opacity:0,duration:1,ease:'power4.out',delay:.2});
   gsap.from('#nm2 .outline',{y:'100%',opacity:0,duration:1,ease:'power4.out',delay:.35});
   gsap.from('.hero .lede,.hero .cta',{y:20,opacity:0,duration:.9,ease:'power3.out',delay:.7});
-  gsap.to('#nm1',{x:-40,scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
-  gsap.to('#nm2',{x:40,scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('#nm1',{x:-40,force3D:true,scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('#nm2',{x:40,force3D:true,scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
 }
 
 document.querySelectorAll('.cnt').forEach(function(el){
@@ -855,7 +904,7 @@ if(car && road && numSec){
   /* Scroll-linked and fully reversible: the car's target is a pure function of scroll position (same range as before:
      section top at 70% of the screen -> section bottom at 60%), eased every frame in BOTH directions and moved with
      transform (no layout), so it glides forward on scroll-down and backward on scroll-up. */
-  var carW=26, carMax=0, carX=0, carTg=0, carRaf=0;
+  var carW=26, carMax=0, carX=0, carTg=0, carRaf=0, carLt=0;
   function carPut(x){ car.style.transform='translate3d('+x.toFixed(2)+'px,calc(-50% - 9px),0) scale(1.5)'; }
   function carMeasure(){ carMax=Math.max(0,road.clientWidth-carW); }
   function carTarget(){
@@ -863,13 +912,14 @@ if(car && road && numSec){
     var p=(0.7*vh - r.top)/(r.height + 0.1*vh); p=p<0?0:(p>1?1:p);
     return p*carMax;
   }
-  function carTick(){
+  function carTick(ts){
     carRaf=0; carTg=carTarget();
+    var dt=carLt?Math.min(50,Math.max(4,ts-carLt)):16.67; carLt=ts;      /* time-based easing: identical feel at 60, 90 or 144 Hz and through a dropped frame */
     var d=carTg-carX;
-    if(reduce || Math.abs(d)<0.25){ carX=carTg; carPut(carX); return; }
-    carX+=d*0.2; carPut(carX); carRaf=requestAnimationFrame(carTick);
+    if(reduce || Math.abs(d)<0.25){ carX=carTg; carPut(carX); carLt=0; return; }
+    carX+=d*(1-Math.exp(-dt/75)); carPut(carX); carRaf=requestAnimationFrame(carTick);
   }
-  function carKick(){ if(!carRaf) carRaf=requestAnimationFrame(carTick); }
+  function carKick(){ if(!carRaf){ carLt=0; carRaf=requestAnimationFrame(carTick); } }
   carMeasure(); carX=carTarget(); carPut(carX);
   window.addEventListener('scroll',carKick,{passive:true});
   window.addEventListener('resize',function(){ carMeasure(); carKick(); });
@@ -896,7 +946,7 @@ if(evBat && evPanel){
   }
   /* Phones: the battery starts at 72% and charges up to 100% each time the card comes into view (resets when it leaves),
      so it never opens already full. Desktop keeps the scroll-driven behaviour below. */
-  var evPhone=window.matchMedia('(max-width:900px), (hover:none) and (pointer:coarse)').matches;
+  var evPhone=window.matchMedia('(max-width:900px), (hover:none) and (pointer:coarse)').matches, evIce=document.getElementById('ice-panel');
   if(evPhone){
     var SOC_LOW=72, SOC_RATE=0.1, socRaf=0, socIn=false, socAnim=false, socY=null, socScrollRaf=0, socCharged=false;
     /* intro: charge 72% -> 100% when the card appears; afterwards scrolling down charges, scrolling up discharges (floor 72%) */
@@ -946,6 +996,7 @@ if(evBat && evPanel){
       var y=self.scroll();
       if(evLast!==null) evState.target=Math.max(0,Math.min(100,evState.target+(y-evLast)*SOC_PER_PX));
       evLast=y;
+      if(evIce && evIce.getBoundingClientRect().top <= evBat.getBoundingClientRect().top) return;   /* covered by the next card: keep the level, skip the invisible repaint */
       if(reduce){ evState.view=evState.target; evRender(); }
       else gsap.to(evState,{view:evState.target,duration:.6,ease:'power2.out',overwrite:true,onUpdate:evRender});
     }
@@ -1184,8 +1235,9 @@ if(evBat && evPanel){
     var r = viz.getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
     var top = Math.max(r.top, 0), bot = Math.min(r.bottom, vh);
     if(bot - top < r.height * 0.5) return false;
-    var el = document.elementFromPoint(r.left + r.width / 2, (top + bot) / 2);
-    return !!(el && viz.contains(el));
+    var cover = document.getElementById('ongoing-panel');          /* the next sticky card slides over this one (cheap rect test; elementFromPoint forced layout every frame) */
+    if(cover && cover.getBoundingClientRect().top < (top + bot) / 2) return false;
+    return true;
   }
 
   /* ---------- scroll input: one passive listener that only accumulates distance ---------- */
@@ -1581,7 +1633,7 @@ if(evBat && evPanel){
       var ns='http://www.w3.org/2000/svg', gr=document.createElementNS(ns,'g'); gr.setAttribute('class','wp');
       var r=document.createElementNS(ns,'rect'); r.setAttribute('x',xx-11);r.setAttribute('y',yy-8);r.setAttribute('width',22);r.setAttribute('height',16);r.setAttribute('rx',4);
       var t=document.createElementNS(ns,'text'); t.setAttribute('x',xx); t.setAttribute('y',yy+3); t.textContent=w[1];
-      gr.appendChild(r); gr.appendChild(t); gW.appendChild(gr); st.wps.push({y:yy,el:gr});
+      gr.appendChild(r); gr.appendChild(t); gW.appendChild(gr); st.wps.push({y:yy,el:gr,n:w[1],id:w[0]});
     });
   }
 
@@ -1863,7 +1915,8 @@ if(evBat && evPanel){
     c.globalAlpha=1; fly.raf=requestAnimationFrame(flyFrame);
   }
   function flySet(env){
-    fly.env=env; if(!fly.cv||mqR.matches||root.classList.contains('lite')) return;
+    fly.env=env; if(fly.cv){ var want=env>.02&&!mqR.matches; if(fly.shown!==want){ fly.shown=want; fly.cv.style.display=want?'block':'none'; } }   /* the full-screen canvas is only a layer while flakes are visible */
+    if(!fly.cv||mqR.matches||root.classList.contains('lite')) return;
     if(env>.02&&!fly.raf){ if(!fly.ctx||fly.W!==root.clientWidth||fly.H!==innerHeight) flyInit(); fly.last=performance.now(); fly.raf=requestAnimationFrame(flyFrame); }
   }
   function snowLight(y){
@@ -1914,7 +1967,8 @@ if(evBat && evPanel){
   }
   /* In the normal (animated) mode the car sits in its own fixed layer and is positioned with a CSS transform (compositor only).
      The inner group is drawn at the largest size it ever needs, so the layer is only ever scaled down and stays sharp. */
-  function syncFx(){ var fx=$('jfx'); fx.setAttribute('viewBox',road.getAttribute('viewBox')); fx.style.height=road.style.height; }
+  function syncFx(){ var fx=$('jfx'), tp=$('jtop'), vb=road.getAttribute('viewBox'); fx.setAttribute('viewBox',vb); fx.style.height=road.style.height;
+    tp.setAttribute('viewBox',vb); tp.setAttribute('width',road.getAttribute('width')); tp.setAttribute('height',road.getAttribute('height')); tp.style.height=road.style.height; }
   function putCar(x,y,ang,s){
     if(car.parentNode===st.carHome){
       carLayer.style.transform='translate3d('+x.toFixed(2)+'px,'+y.toFixed(2)+'px,0) rotate('+ang.toFixed(2)+'deg) scale('+(s/st.carRS).toFixed(4)+')';
@@ -1922,18 +1976,39 @@ if(evBat && evPanel){
       car.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+ang.toFixed(1)+') scale('+s.toFixed(3)+')');
     }
   }
-  function place(snap){
+  /* ===== speed readout + gear selector. Speed = scroll px/s x 0.034 (1000 px/s ~ 34 km/h), rises and falls slowly like a real car.
+     P = parked (top of the page / arrived), N = stopped mid-journey, D = moving down the road, R = moving back up ===== */
+  var hudEl=document.getElementById('hud'), spNum=document.getElementById('spNum'), hShown=-1, hLive=false, hGear='', hGearEl={};
+  if(hudEl){ var gl=hudEl.querySelectorAll('.hud-modes i'); for(var gi=0;gi<gl.length;gi++) hGearEl[gl[gi].getAttribute('data-g')]=gl[gi]; }
+  function setSpeed(sp){
+    if(!hudEl) return;
+    var r=Math.round(sp); if(r!==hShown){ hShown=r; spNum.textContent=r; }
+    var lv=sp>2; if(lv!==hLive){ hLive=lv; hudEl.classList.toggle('live',lv); }   /* below 2 km/h the car counts as stopped */
+    var gr;
+    if(lv) gr=(st.dir<0)?'R':'D';
+    else { var sy=window.scrollY||0, mx=(st.geo?st.geo.H:0)-innerHeight; gr=(sy<40||(mx>0&&sy>=mx-40))?'P':'N'; }
+    if(gr!==hGear){ if(hGearEl[hGear]) hGearEl[hGear].classList.remove('on'); hGear=gr; if(hGearEl[gr]) hGearEl[gr].classList.add('on'); }
+  }
+  function place(snap,dt){
+    dt=dt||16.67; var kc=1-Math.exp(-dt/52), ka=1-Math.exp(-dt/45), ks=1-Math.exp(-dt/40);   /* time-based easing (was fixed per-frame factors) */
     var g=st.geo, sy=window.scrollY||0, vh=innerHeight;
     var tg=target();
-    if(snap) st.cy=tg; else { st.cy+= (tg-st.cy)*0.2; var lag=tg-st.cy; if(lag>90) st.cy=tg-90; else if(lag<-90) st.cy=tg+90; }
+    /* No easing: the car sits exactly at its scroll-derived place on the road. The script sees the scroll position a frame or two after the
+       browser has already painted it, so the car is pushed ahead by (scroll speed x latency) to stay level with the page; at rest the lead is 0. */
+    var vi=snap?0:(sy-st.lsy)/dt; st.lsy=sy; st.v = snap?0 : st.v+(vi-st.v)*(1-Math.exp(-dt/28));
+    if(Math.abs(st.v)>0.05) st.dir=st.v<0?-1:1;
+    var tsp=Math.min(160,Math.abs(st.v)*34), kt=tsp>st.sp?380:620;      /* slow attack, slower release: no rocket launches on a wheel flick */
+    st.sp = snap?0 : st.sp+(tsp-st.sp)*(1-Math.exp(-dt/kt)); setSpeed(st.sp);
+    var lead=Math.max(-150,Math.min(150,st.v*34));
+    st.cy=Math.max(g.yS,Math.min(g.yE,tg+lead));
     var y=st.cy, x=xAt(g,y), m=(xAt(g,y+2)-xAt(g,y-2))/4;
     var ang=Math.atan2(1,m)*180/Math.PI;
-    var d=ang-st.ang; st.ang = snap? ang : st.ang+d*0.25;
-    var steer=Math.max(-24,Math.min(24,d*1.1)); st.steer = snap?0: st.steer+(steer-st.steer)*0.3;
+    var d=ang-st.ang; st.ang = snap? ang : st.ang+d*ka;     /* st.ang only feeds the steering; the car itself is drawn at the exact road heading */
+    var steer=Math.max(-24,Math.min(24,d*1.1)); st.steer = snap?0: st.steer+(steer-st.steer)*ks;
     var s=wAt(g,y)*0.56/46;
     var cx=x, cyScr=y-sy;
-    putCar(cx,cyScr,st.ang,s);
-    if(Math.abs(st.steer-st.lastSteer)>0.35){ st.lastSteer=st.steer; var sw=st.steerEls||(st.steerEls=car.querySelectorAll('.jsteer')); var rot='rotate('+st.steer.toFixed(1)+')'; for(var i=0;i<sw.length;i++) sw[i].setAttribute('transform',rot); }
+    putCar(cx,y,ang,s);   /* x comes from the road function of the SAME y, so the car is always exactly on the road centre line */
+    if(Math.abs(st.steer-st.lastSteer)>0.6){ st.lastSteer=st.steer; var sw=st.steerEls||(st.steerEls=car.querySelectorAll('.jsteer')); var rot='rotate('+st.steer.toFixed(1)+')'; for(var i=0;i<sw.length;i++) sw[i].setAttribute('transform',rot); }
     if(st.tun){ var amt=tunAmt(y), near=1e9; for(var q=0;q<st.lights.length;q++){var dd=Math.abs(y-st.lights[q]); if(dd<near) near=dd;}
       var lit=Math.exp(-Math.pow(near/30,2)); carLayer.style.opacity=(1-amt*0.24*(1-lit)).toFixed(3); } else if(carLayer.style.opacity) carLayer.style.opacity='';
     if(st.chg){ var cd=(y-st.chg.y)/60, ck=Math.exp(-cd*cd);
@@ -1944,10 +2019,10 @@ if(evBat && evPanel){
     var qi=idx-(idx%4);                      /* 24px steps, rounded down so the trail end always stays under the car body */
     if(qi!==st.tIdx){ st.tIdx=qi; setTrail(st.lens[qi]); }
     for(var k=0;k<st.wps.length;k++){ var on=y>=st.wps[k].y-6; if(st.wps[k].on!==on){st.wps[k].on=on; st.wps[k].el.classList.toggle('on',on);} }
-    return Math.abs(tg-st.cy)>0.4||Math.abs(ang-st.ang)>0.1||Math.abs(st.steer)>0.3;
+    return Math.abs(st.v)>0.015||st.sp>0.3||Math.abs(ang-st.ang)>0.1||Math.abs(st.steer)>0.3;
   }
-  function tick(){ st.raf=0; if(place(false)) st.raf=requestAnimationFrame(tick); }
-  function onScroll(){ if(mqR.matches) return; if(!st.raf) st.raf=requestAnimationFrame(tick); }
+  function tick(ts){ st.raf=0; var dt=st.lt?Math.min(50,Math.max(4,ts-st.lt)):16.67; st.lt=ts; if(place(false,dt)) st.raf=requestAnimationFrame(tick); else { st.lt=0; st.sp=0; st.v=0; setSpeed(0); } }
+  function onScroll(){ if(mqR.matches) return; if(!st.raf){ st.lt=0; st.lsy=window.scrollY||0; st.v=0; st.raf=requestAnimationFrame(tick); } }
 
   function placeStatic(){
     carLayer.style.opacity='';
@@ -1960,6 +2035,7 @@ if(evBat && evPanel){
   }
 
   function rebuild(){
+    st.vh=innerHeight; st.lsy=window.scrollY||0; st.v=0; st.sp=0; st.dir=1;
     st.tIdx=-1; st.steerEls=null; st.sig=sizeSig();
     build(); watchAnim();
     if(mqR.matches){
@@ -1972,7 +2048,7 @@ if(evBat && evPanel){
       place(true);
     }
   }
-  function schedule(){ clearTimeout(st.rt); st.rt=setTimeout(function(){ if(st.on && sizeSig()!==st.sig) rebuild(); },200); }   /* skip the expensive rebuild when the layout did not actually change */
+  function schedule(){ clearTimeout(st.rt); st.rt=setTimeout(function(){ if(st.on && (sizeSig()!==st.sig || innerHeight!==st.vh)) rebuild(); },200); }   /* skip the expensive rebuild when the layout did not actually change */
 
   function enable(){
     if(st.on) return; st.on=true; root.classList.add('journey-on');
@@ -2114,6 +2190,16 @@ if(evBat && evPanel){
   }
   a.href=make();
   a.addEventListener('click',function(e){ e.stopPropagation(); if(a.getAttribute('href')==='#resume') a.href=make(); });
+})();
+</script>
+<script>
+/* marks the page as 'scrolling' so purely decorative main-thread loops can rest until scrolling stops */
+(function(){
+  var r=document.documentElement,t=0,on=false;
+  window.addEventListener('scroll',function(){
+    if(!on){ on=true; r.classList.add('is-scrolling'); }
+    clearTimeout(t); t=setTimeout(function(){ on=false; r.classList.remove('is-scrolling'); },160);
+  },{passive:true});
 })();
 </script>
 </body>
