@@ -488,6 +488,20 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
 .dk-hint button{flex:0 0 auto;align-self:center;background:#F2A900;color:#0a0c10;border:0;border-radius:8px;padding:.55rem .85rem;font:600 .8rem Inter,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){.dk-hint{transition:none;transform:none}}
 </style>
+
+<style id="mailMenuCss">
+.mailmenu{position:fixed;z-index:8000;min-width:236px;padding:6px;border-radius:12px;background:#12161b;border:1px solid #2a313a;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(242,169,0,.08);
+  opacity:0;transform:translateY(6px) scale(.98);transform-origin:50% 0;pointer-events:none;transition:opacity .16s ease,transform .16s ease}
+.mailmenu.on{opacity:1;transform:none;pointer-events:auto}
+.mailmenu.up{transform-origin:50% 100%}
+.mailmenu .mm-h{padding:8px 10px 6px;font:700 .62rem/1 var(--font-m,monospace);letter-spacing:.16em;text-transform:uppercase;color:var(--mu,#8a94a3)}
+.mailmenu a,.mailmenu button{display:flex;align-items:center;gap:.7rem;width:100%;padding:10px 10px;border:0;border-radius:8px;background:none;color:var(--ink,#eef1f5);font-weight:600;font-size:.9rem;line-height:1.2;font-family:inherit;text-align:left;cursor:pointer;text-decoration:none}
+.mailmenu a:hover,.mailmenu button:hover,.mailmenu a:focus-visible,.mailmenu button:focus-visible{background:rgba(242,169,0,.12);outline:none;color:#fff}
+.mailmenu i{flex:0 0 auto;width:20px;height:20px;border-radius:5px;display:grid;place-items:center;font-weight:800;font-size:.68rem;line-height:1;font-family:inherit;font-style:normal;background:#1c222a;color:var(--amber,#F2A900)}
+.mailmenu .mm-sep{height:1px;margin:5px 4px;background:#222a33}
+.mailmenu .mm-ok{color:#46e3bd}
+@media(prefers-reduced-motion:reduce){.mailmenu{transition:none}}
+</style>
 </head>
 <body>
 <div class="ig" id="ignition" role="dialog" aria-modal="true" aria-label="Welcome to my automotive portfolio. Start the engine to explore the journey.">
@@ -872,7 +886,7 @@ html.ty-js .thankyou.in .ty-r{opacity:1;transform:none;transition:opacity .8s ea
       <span>3 yrs vehicle-level UAT</span><span>22,000+ real world km test drive</span><span>~2,000 defects logged</span><span>EV &amp; ICE programs</span><span>Open to relocation</span>
     </div>
     <div class="cta">
-      <a class="btn" href="mailto:dineshvenkataduru@gmail.com">Email me</a>
+      <a class="btn" id="emailBtn" href="mailto:dineshvenkataduru@gmail.com?subject=Hello%20Venkat" aria-haspopup="menu" aria-expanded="false">Email me</a>
       <a class="btn o" href="https://www.linkedin.com/in/venkat-dinesh-aduru-2b3382239" target="_blank" rel="noopener">LinkedIn</a>
       <a class="btn o" href="tel:+919490983628" aria-label="Call +91 9490983628">Call me</a>
     </div>
@@ -2442,6 +2456,48 @@ if(evBat && evPanel){
     if(!on){ on=true; r.classList.add('is-scrolling'); }
     clearTimeout(t); t=setTimeout(function(){ on=false; r.classList.remove('is-scrolling'); },160);
   },{passive:true});
+})();
+</script>
+
+<script>
+/* "Email me": a desktop with no default mail app ignores mailto:, so offer web mail and a copy button as well (the plain mailto link still works as the fallback). */
+(function(){
+  var btn=document.getElementById('emailBtn'); if(!btn) return;
+  var TO='dineshvenkataduru@gmail.com', SU='Hello Venkat', q=encodeURIComponent;
+  var menu=document.createElement('div'); menu.className='mailmenu'; menu.setAttribute('role','menu'); menu.setAttribute('aria-label','Choose how to email');
+  var items=[
+    ['G','Open in Gmail','https://mail.google.com/mail/?view=cm&fs=1&to='+q(TO)+'&su='+q(SU)],
+    ['O','Open in Outlook','https://outlook.live.com/mail/0/deeplink/compose?to='+q(TO)+'&subject='+q(SU)],
+    ['Y','Open in Yahoo Mail','https://compose.mail.yahoo.com/?to='+q(TO)+'&subject='+q(SU)],
+    ['@','Use my mail app','mailto:'+TO+'?subject='+q(SU)]
+  ];
+  var html='<div class="mm-h">Send an email via</div>';
+  items.forEach(function(it){ html+='<a role="menuitem" href="'+it[2]+'"'+(it[0]==='@'?'':' target="_blank" rel="noopener"')+'><i>'+it[0]+'</i>'+it[1]+'</a>'; });
+  html+='<div class="mm-sep"></div><button type="button" role="menuitem" id="mmCopy"><i>&#10697;</i><span>Copy email address</span></button>';
+  menu.innerHTML=html; document.body.appendChild(menu);
+  var copyBtn=menu.querySelector('#mmCopy'), copyTxt=copyBtn.querySelector('span'), open=false, tmr=0;
+  function place(){
+    var r=btn.getBoundingClientRect(), mh=menu.offsetHeight, mw=menu.offsetWidth, vw=document.documentElement.clientWidth, vh=innerHeight;
+    var below=vh-r.bottom>mh+14, top=below?r.bottom+8:Math.max(8,r.top-mh-8), left=Math.min(Math.max(8,r.left+r.width/2-mw/2),vw-mw-8);
+    menu.classList.toggle('up',!below); menu.style.top=top+'px'; menu.style.left=left+'px';
+  }
+  function show(){ open=true; place(); menu.classList.add('on'); btn.setAttribute('aria-expanded','true'); var f=menu.querySelector('a'); if(f) f.focus({preventScroll:true}); }
+  function hide(back){ if(!open) return; open=false; menu.classList.remove('on'); btn.setAttribute('aria-expanded','false'); if(back) btn.focus({preventScroll:true}); }
+  btn.addEventListener('click',function(e){ e.preventDefault(); open?hide(true):show(); });
+  document.addEventListener('click',function(e){ if(open && !menu.contains(e.target) && e.target!==btn) hide(false); });
+  document.addEventListener('keydown',function(e){
+    if(!open) return;
+    if(e.key==='Escape'){ hide(true); return; }
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); var els=[].slice.call(menu.querySelectorAll('[role=menuitem]')), i=els.indexOf(document.activeElement); els[(i+(e.key==='ArrowDown'?1:els.length-1))%els.length].focus(); }
+  });
+  window.addEventListener('resize',function(){ if(open) place(); });
+  window.addEventListener('scroll',function(){ if(open) hide(false); },{passive:true});
+  menu.addEventListener('click',function(e){ if(e.target.closest('a')) setTimeout(function(){ hide(false); },50); });
+  copyBtn.addEventListener('click',function(){
+    function done(ok){ copyTxt.textContent=ok?'Copied  '+TO:'Press Ctrl+C to copy'; copyTxt.className=ok?'mm-ok':''; clearTimeout(tmr); tmr=setTimeout(function(){ copyTxt.textContent='Copy email address'; copyTxt.className=''; hide(true); },1400); }
+    function fallback(){ var ta=document.createElement('textarea'); ta.value=TO; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;left:-999px;top:0'; document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done(ok); }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(TO).then(function(){ done(true); },fallback); else fallback();
+  });
 })();
 </script>
 </body>
