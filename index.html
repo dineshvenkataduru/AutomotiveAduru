@@ -1917,7 +1917,7 @@ if(evBat && evPanel){
       /* signals travel along links and light the node they reach */
       if(dt && sig.length<5 && Math.random()<.04*dt){
         a=nodes[(Math.random()*nodes.length)|0]; var nb=near(a,LINK);
-        if(nb.length) sig.push({a:a,b:nb[(Math.random()*nb.length)|0],p:0,s:rnd(.012,.022),c:Math.random()<.35?AMB:TEAL});
+        if(nb.length) sig.push({a:a,b:nb[(Math.random()*nb.length)|0],p:0,s:rnd(.0065,.0115),c:Math.random()<.35?AMB:TEAL});
       }
       for(i=sig.length-1;i>=0;i--){ var g=sig[i]; g.p+=g.s*(dt||0);
         if(g.p>=1){ g.b.f=1; sig.splice(i,1); continue; }
