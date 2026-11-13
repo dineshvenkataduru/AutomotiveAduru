@@ -483,9 +483,9 @@ html.ig-open{overflow:hidden;scrollbar-gutter:stable}
 .ig-trace{display:none}
 @media(max-width:700px){
   .ig-trace{display:flex;position:absolute;left:0;right:0;top:56%;bottom:0;overflow:hidden;gap:14px;padding:0 8px;pointer-events:none;
-    font-family:var(--font-m);font-size:min(8px,calc((100vw - 44px)/50));line-height:1.9;letter-spacing:0;color:#3a4a62;
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.45) 20%,#000 48%,#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);-webkit-mask-composite:source-in;
-    mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.45) 20%,#000 48%,#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);mask-composite:intersect}
+    font-family:var(--font-m);font-size:min(8px,calc((100vw - 44px)/50));line-height:1.9;letter-spacing:0;color:#3a4a62;opacity:.7;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.14) calc(var(--tf,170px)*.55),#000 var(--tf,170px),#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);-webkit-mask-composite:source-in;
+    mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.14) calc(var(--tf,170px)*.55),#000 var(--tf,170px),#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);mask-composite:intersect}
   .ig-trace div{flex:1 1 0;min-width:0;overflow-x:clip;white-space:pre;animation:igTrace 40s linear infinite;will-change:transform}
   .ig-trace div:nth-child(even){animation-duration:55s;animation-direction:reverse}
   .ig-trace b{color:#f5a300;font-weight:400;opacity:.8}
@@ -1209,7 +1209,7 @@ window.__igEngineB64="//uSZECP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVV
     var ir=ig.getBoundingClientRect(), t=document.getElementById('igTitle').getBoundingClientRect(),
         b=document.getElementById('igBtn').getBoundingClientRect(), c=document.getElementById('igCap').getBoundingClientRect();
     var top=Math.max(0,t.bottom-ir.top+12), bt=b.top-ir.top-top, bb=c.bottom-ir.top-top, half=(bb-bt)/2, ry=half+72;
-    tr.style.top=top+'px';
+    tr.style.top=top+'px'; tr.style.setProperty('--tf',Math.max(60,Math.round((bt+bb)/2-(bb-bt)/2+(bb-bt)/2))+'px');   /* the top fade reaches full strength level with the middle of the button */
     tr.style.setProperty('--tby',((bt+bb)/2)+'px'); tr.style.setProperty('--try',ry+'px'); tr.style.setProperty('--tc',Math.round((half+6)/ry*100)+'%');
   }
   function soon(){ requestAnimationFrame(place); }
