@@ -484,12 +484,15 @@ html.ig-open{overflow:hidden;scrollbar-gutter:stable}
 @media(max-width:700px){
   .ig-trace{display:flex;position:absolute;left:0;right:0;top:56%;bottom:0;overflow:hidden;gap:14px;padding:0 8px;pointer-events:none;
     font-family:var(--font-m);font-size:min(8px,calc((100vw - 44px)/50));line-height:1.9;letter-spacing:0;color:#3a4a62;
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16%,#000 86%,transparent 97%),radial-gradient(ellipse 72% var(--try,170px) at 50% var(--tby,40%),transparent var(--tc,60%),#000 100%);-webkit-mask-composite:source-in;
-    mask-image:linear-gradient(to bottom,transparent 0,#000 16%,#000 86%,transparent 97%),radial-gradient(ellipse 72% var(--try,170px) at 50% var(--tby,40%),transparent var(--tc,60%),#000 100%);mask-composite:intersect}
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.45) 20%,#000 48%,#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);-webkit-mask-composite:source-in;
+    mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.45) 20%,#000 48%,#000 86%,transparent 97%),radial-gradient(ellipse 25% var(--try,170px) at 50% var(--tby,40%),rgba(0,0,0,.14) 70%,#000 100%);mask-composite:intersect}
   .ig-trace div{flex:1 1 0;min-width:0;overflow-x:clip;white-space:pre;animation:igTrace 40s linear infinite;will-change:transform}
   .ig-trace div:nth-child(even){animation-duration:55s;animation-direction:reverse}
   .ig-trace b{color:#f5a300;font-weight:400;opacity:.8}
   .ig-trace i{color:#2f8f7a;font-style:normal}
+  /* phones: the warm light is kept but toned right down (no glow on the ring itself), so the area feels lit without anything shouting */
+  .ig-scene::before,.ig-bloom,.ig-pool{opacity:.4}.ig-horizon::after{display:none}
+  .ig-ring{box-shadow:none}.ig-txt{text-shadow:none}
 }
 @keyframes igTrace{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-50%,0)}}
 @media(prefers-reduced-motion:reduce){.ig-trace div{animation:none!important}}
